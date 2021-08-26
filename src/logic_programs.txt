@@ -1,0 +1,40 @@
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A3,A5 <- ~A2,A5 <- ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A1, ~A4,A5 <- ~A2, ~A3,A5 <- ~A2, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A1, ~A4,A5 <- ~A2, ~A3,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A4,A5 <- ~A1, ~A3,A5 <- ~A2, ~A3,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A2, ~A4,A5 <- ~A1, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A2,A5 <- ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A4,A5 <- ~A2,A5 <- ~A3]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A4,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A3]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1,A5 <- ~A3,A5 <- ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A3,A5 <- ~A1, ~A4,A5 <- ~A2, ~A3,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A3,A5 <- ~A1, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A1, ~A4,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A4,A5 <- ~A1, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A2, ~A3,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A4,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A2, ~A4,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A2, ~A3,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A4,A5 <- ~A2, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A4,A5 <- ~A2, ~A3,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A2, ~A3,A5 <- ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A4,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A2,A5 <- ~A3,A5 <- ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2,A5 <- ~A1, ~A3,A5 <- ~A1, ~A4,A5 <- ~A2, ~A3,A5 <- ~A2, ~A4,A5 <- ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A4,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1,A5 <- ~A2,A5 <- ~A3,A5 <- ~A4]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5,A5 <- ~A1, ~A2, ~A3,A5 <- ~A1, ~A2, ~A4,A5 <- ~A1, ~A3, ~A4,A5 <- ~A2, ~A3, ~A4]}}
+LPafter {lp = LPjson {facts = [A5 <- Top], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5]}}
+LPafter {lp = LPjson {facts = [], assumptions = [], clauses = [A1 <- A3,A1 <- A2,A2 <- A3,A3 <- A5,A4 <- A5]}}
