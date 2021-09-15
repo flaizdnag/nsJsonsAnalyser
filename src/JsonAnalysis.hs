@@ -87,7 +87,7 @@ recAnalyser (f:fs) accIO = recAnalyser fs newAcc
         lpIO = do
             json <- decodeFileStrict ("results/" ++ f) :: IO (Maybe JsonToAnalyse)
             case json of
-                Nothing -> return "Could not parse LP"
+                Nothing -> return $ "Could not parse LP from file " ++ f
                 Just xs -> return . show . lp_after $ xs
 
 
