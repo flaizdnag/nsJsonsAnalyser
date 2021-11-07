@@ -61,8 +61,8 @@ analyseJsons :: IO ()
 analyseJsons = do
     let checkedLPsFile = "logic_programs.txt"
     writeFile checkedLPsFile ""
-    putStrLn "Created file logic_programs.txt with logic programs"
-    putStrLn "Writing logic programs to logic_programs.txt"
+    putStrLn $ "Created file " ++ checkedLPsFile ++ " with logic programs"
+    putStrLn $ "Writing logic programs to " ++ checkedLPsFile
 
     files <- listDirectory "results"
 

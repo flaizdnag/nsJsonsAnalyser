@@ -26,6 +26,7 @@ dependencies:
 - exemplaryDep
 - lph
 - aeson 
+- mtl
 
 library:
   source-dirs: src
