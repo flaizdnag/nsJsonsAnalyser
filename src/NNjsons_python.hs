@@ -38,7 +38,7 @@ data NNpython = NNpython
     , i2h_connections :: [[Float]]
     , h2o_connections :: [[Float]]
     , o2i_connections :: [[Float]]
-    , factors         :: Factors
+    , amin            :: Float
     , comments        :: [String]
     } deriving (Show, Read, Generic)
 

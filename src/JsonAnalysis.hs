@@ -17,7 +17,7 @@ where lp is translated to nn, nn is trained, and nn is translated back to lp.
 module JsonAnalysis
     ( JsonToAnalyse (..)
     , analyseJsons
-    , exampleJson
+    --, exampleJson
     ) where
 
 
@@ -40,16 +40,17 @@ import           NeuralNetworks        as NN
 
 
 data JsonToAnalyse = JsonToAnalyse
-    { lp_before        :: LPtoNN
-    , lp_before_params :: LPparams
-    , nn_recipe        :: NNwithFactors
-    , nn_before_params :: NNparams
+    { lp_before        :: LPjson
+    --, lp_before_params :: LPparams
+    , neural_network_factors :: Factors
+    , nn_recipe        :: NNwithAmin
+    --, nn_before_params :: NNparams
     , nn_before        :: NNpython
     , nn_after         :: NNpython
     , errors           :: [Float]
     , io_pairs         :: [[[Float]]]
     , lp_after         :: LPafter
-    , lp_after_params  :: LPparams
+    --, lp_after_params  :: LPparams
     } deriving (Show, Read, Generic)
 
 instance FromJSON JsonToAnalyse
@@ -94,17 +95,18 @@ recAnalyser (f:fs) accIO = recAnalyser fs newAcc
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+{-
 exampleJson = JsonToAnalyse
     { lp_before        = exampleLP
-    , lp_before_params = exampleLPparams
+    --, lp_before_params = exampleLPparams
     , nn_recipe        = exampleNNrecipe
-    , nn_before_params = exampleNNparams
+    --, nn_before_params = exampleNNparams
     , nn_before        = exampleNNpy
     , nn_after         = exampleNNpy
     , errors           = []
     , io_pairs         = []
     , lp_after         = exampleLPafter
-    , lp_after_params  = exampleLPparams
+    --, lp_after_params  = exampleLPparams
     }
 
 exampleLP = LPtoNN
@@ -117,7 +119,7 @@ exampleLP = LPtoNN
             }
         ]
     , abductive_goal = exampleAbdGoal
-    , JH.factors = exampleFactors
+    --, JH.factors = exampleFactors
     }
 
 exampleAbdGoal = Cl
@@ -277,3 +279,4 @@ jsonAnalyser pathToAnalyse pathToCheck = do
             else
                 appendFile pathToCheck (show $ lp_after js)
 
+-}

@@ -36,7 +36,6 @@ packages:
 # forks / in-progress versions pinned to a git hash. For example:
 #
 extra-deps:
-- ../exemplaryDep
 - ../lph
 - ../lph/third-party/qm
 # - acme-missiles-0.3
