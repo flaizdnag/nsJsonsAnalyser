@@ -26,6 +26,7 @@ dependencies:
 - lph
 - aeson 
 - mtl
+- containers
 
 library:
   source-dirs: src

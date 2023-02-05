@@ -23,6 +23,7 @@ module JsonAnalysis
 
 import           Data.Aeson
 import           Data.List
+import qualified Data.Map              as Map
 import           GHC.Generics
 import           System.Directory
 import           System.FilePath.Posix
@@ -41,7 +42,7 @@ import           NeuralNetworks        as NN
 
 data JsonToAnalyse = JsonToAnalyse
     { lp_before        :: LPjson
-    --, lp_before_params :: LPparams
+    , lp_before_params :: LPparams
     , neural_network_factors :: Factors
     , nn_recipe        :: NNwithAmin
     --, nn_before_params :: NNparams
@@ -50,7 +51,7 @@ data JsonToAnalyse = JsonToAnalyse
     , errors           :: [Float]
     , io_pairs         :: [[[Float]]]
     , lp_after         :: LPafter
-    --, lp_after_params  :: LPparams
+    , lp_after_params  :: LPparams
     } deriving (Show, Read, Generic)
 
 instance FromJSON JsonToAnalyse
@@ -67,28 +68,30 @@ analyseJsons = do
 
     files <- listDirectory "results"
 
-    lps <- unlines <$> recAnalyser files (return [])
+    lps <- unlines . map (\(x, y) -> x ++ " " ++ show y) <$> recAnalyser files (return [])
     appendFile checkedLPsFile lps
 
     putStrLn "Done"
 
 
-recAnalyser :: [FilePath] -> IO [String] -> IO [String]
+recAnalyser :: [FilePath] -> IO [(String, Int)] -> IO [(String, Int)]
 recAnalyser [] accIO = accIO
-recAnalyser (f:fs) accIO = recAnalyser fs newAcc
+recAnalyser (file:files) accIO = recAnalyser files newAcc
     where
         newAcc = do
             acc <- accIO
             lp  <- lpIO
 
-            if lp `elem` acc
-                then return acc
-                else return $ lp : acc
+            let accMap = Map.fromList acc
+
+            case Map.lookup lp accMap of
+                Nothing  -> return $ Map.toList $ Map.insert lp 1 accMap
+                Just val -> return $ Map.toList $ Map.insert lp (val + 1) accMap
 
         lpIO = do
-            json <- decodeFileStrict ("results/" ++ f) :: IO (Maybe JsonToAnalyse)
+            json <- decodeFileStrict ("results/" ++ file) :: IO (Maybe JsonToAnalyse)
             case json of
-                Nothing -> return $ "Could not parse LP from file " ++ f
+                Nothing -> return $ "Could not parse LP from file " ++ file
                 Just xs -> return . show . lp_after $ xs
 
 
