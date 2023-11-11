@@ -66,13 +66,13 @@ analyseJsons = do
 
     files <- listDirectory "results"
 
-    lps <- unlines . map (\(x, y) -> x ++ " " ++ show y) <$> recAnalyser files (return [])
+    lps <- unlines . map (\(x, y) -> "Number of lps: " ++ show y ++ "\n" ++ show x ++ "\n") <$> recAnalyser files (return [])
     appendFile checkedLPsFile lps
 
     putStrLn "Done"
 
 
-recAnalyser :: [FilePath] -> IO [(String, Int)] -> IO [(String, Int)]
+recAnalyser :: [FilePath] -> IO [(LPjson, Int)] -> IO [(LPjson, Int)]
 recAnalyser [] accIO = accIO
 recAnalyser (file:files) accIO = recAnalyser files newAcc
     where
@@ -89,8 +89,14 @@ recAnalyser (file:files) accIO = recAnalyser files newAcc
         lpIO = do
             json <- decodeFileStrict ("results/" ++ file) :: IO (Maybe JsonToAnalyse)
             case json of
-                Nothing -> return $ "Could not parse LP from file " ++ file
-                Just xs -> return . show . lp_after $ xs
+                Nothing -> undefined
+                --Nothing -> error "Could not process file " ++ file
+                Just xs -> do
+                    let lp_to_save = LPjsons.lp $ lp_after xs
+                        --nn_to_save = nn_after xs
+                        --data_to_save =
+                            --show lp_to_save ++ "\n" ++ show nn_to_save
+                    return lp_to_save
 
 
 --------------------------------------------------------------------------------
