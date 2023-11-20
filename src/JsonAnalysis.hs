@@ -66,25 +66,25 @@ analyseJsons = do
 
     files <- listDirectory "results"
 
-    lps <- unlines . map (\(x, y) -> "Number of lps: " ++ show y ++ "\n" ++ show x ++ "\n") <$> recAnalyser files (return [])
+    lps <- unlines . map writeResults <$> recAnalyser files (return [])
     appendFile checkedLPsFile lps
 
     putStrLn "Done"
 
 
-recAnalyser :: [FilePath] -> IO [(LPjson, Int)] -> IO [(LPjson, Int)]
+recAnalyser :: [FilePath] -> IO [(LPjson, (Int, [[Float]], [[Float]], [Neuron], [Neuron], [Neuron]))] -> IO [(LPjson, (Int, [[Float]], [[Float]], [Neuron], [Neuron], [Neuron]))]
 recAnalyser [] accIO = accIO
 recAnalyser (file:files) accIO = recAnalyser files newAcc
     where
         newAcc = do
             acc <- accIO
-            lp  <- lpIO
+            (lp, i2h_new, h2o_new, inp_layout, hid_layout, out_layout) <- lpIO
 
             let accMap = Map.fromList acc
 
             case Map.lookup lp accMap of
-                Nothing  -> return $ Map.toList $ Map.insert lp 1 accMap
-                Just val -> return $ Map.toList $ Map.insert lp (val + 1) accMap
+                Nothing  -> return . Map.toList $ Map.insert lp (1, i2h_new, h2o_new, inp_layout, hid_layout, out_layout) accMap
+                Just (val, i2h_old, h2o_old, _, _, _) -> return . Map.toList $ Map.insert lp (val + 1, addWeights i2h_new i2h_old, addWeights h2o_new h2o_old, inp_layout, hid_layout, out_layout) accMap
 
         lpIO = do
             json <- decodeFileStrict ("results/" ++ file) :: IO (Maybe JsonToAnalyse)
@@ -93,11 +93,24 @@ recAnalyser (file:files) accIO = recAnalyser files newAcc
                 --Nothing -> error "Could not process file " ++ file
                 Just xs -> do
                     let lp_to_save = LPjsons.lp $ lp_after xs
-                        --nn_to_save = nn_after xs
-                        --data_to_save =
-                            --show lp_to_save ++ "\n" ++ show nn_to_save
-                    return lp_to_save
+                        i2h_to_save = i2h_connections $ nn_after xs
+                        h2o_to_save = h2o_connections $ nn_after xs
+                        inp_layout = NNpy.inpLayer . architecture $ nn_after xs
+                        hid_layout = NNpy.hidLayer . architecture $ nn_after xs
+                        out_layout = NNpy.outLayer . architecture $ nn_after xs
 
+                    return (lp_to_save, i2h_to_save, h2o_to_save, inp_layout, hid_layout, out_layout)
+
+
+addWeights :: [[Float]] -> [[Float]] -> [[Float]]
+addWeights xs ys = map (\(x, y) -> zipWith (+) x y) (zip xs ys)
+
+
+writeResults :: (LPjson, (Int, [[Float]], [[Float]], [Neuron], [Neuron], [Neuron])) -> String    
+writeResults (lp, (n, i2h, h2o, inp_ns, hid_ns, out_ns)) =
+    "Number of lps: " ++ show n ++ "\n" ++ show lp ++ "\n" ++ show (map (map avg) i2h) ++ "\n" ++ show (map (map avg) h2o) ++ "\n" ++ show (map NN.label inp_ns) ++ "\n" ++ show (map NN.label hid_ns) ++ "\n" ++ show (map NN.label out_ns) ++ "\n"
+    where
+        avg x = x / (fromIntegral n :: Float)
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -130,12 +143,7 @@ exampleLP = LPtoNN
     }
 
 exampleAbdGoal = Cl
-    { clHead = A { LP.idx = 1, LP.label = "" }
-    , clPAtoms = []
-    , clNAtoms = []
-    }
-
-exampleLPparams = LPparams
+    { clHead = A { LP.idx = 1, LP.label = "" } , clPAtoms = [] , clNAtoms = [] } exampleLPparams = LPparams
     { LPjsons.clauses = ClausesData
         { amount        = 5
         , onlyPos       = 5
