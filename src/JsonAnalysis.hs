@@ -68,43 +68,114 @@ analyseJsons = do
 
     putStrLn "Done"
 
-recAnalyser :: [FilePath] -> IO [(LPjson, (Int, [[Float]], [[Float]], [Neuron], [Neuron], [Neuron]))] -> IO [(LPjson, (Int, [[Float]], [[Float]], [Neuron], [Neuron], [Neuron]))]
-recAnalyser [] accIO = accIO
+
+data WeightFullInfo = WeightFullInfo
+  { minWeight :: Float
+  , maxWeight :: Float
+  , sumWeight :: Float
+  , avgWeight :: Float
+  , numWeight :: Int
+  } deriving (Show, Read)
+
+
+data LPData = LPData
+  { lpQuantity :: Int
+  , i2hToSave :: [[WeightFullInfo]]
+  , h2oToSave :: [[WeightFullInfo]]
+  , inpLayout :: [Neuron]
+  , hidLayout :: [Neuron]
+  , outLayout :: [Neuron]
+  }
+
+
+combineWeights :: WeightFullInfo -> WeightFullInfo -> WeightFullInfo
+combineWeights (WeightFullInfo aMin aMax aSum aAvg aNum) (WeightFullInfo bMin bMax bSum bAvg bNum) = combined
+  where
+    combined = WeightFullInfo newMin newMax newSum newAvg newNum
+    newMin = min aMin bMin
+    newMax = min aMax bMax
+    newSum = aSum + bSum
+    newNum = aNum + bNum
+    newAvg = newSum / (fromIntegral newNum :: Float)
+
+weightToFullWeightInfo :: Float -> WeightFullInfo
+weightToFullWeightInfo x = WeightFullInfo x x x x 1
+
+printFullInfoWeights :: [[WeightFullInfo]] -> String
+printFullInfoWeights ws = intercalate "\n\n" (map showWs ws)
+  where
+    showWs :: [WeightFullInfo] -> String
+    showWs xs = intercalate "\n" (map show xs)
+
+-- [[1, 2, 3], [4, 5, 6]]
+--
+--
+-- [[WeightFullInfo 1 1 1, WeightFullInfo 2 2 2, WeightFullInfo 3 3 3], [WeightFullInfo 4 4 4, WeightFullInfo 5 5 5, WeightFullInfo 6 6 6]]
+
+recAnalyser :: [FilePath] -> IO [(LPjson, LPData)] -> IO [(LPjson, LPData)]
+recAnalyser [] accIO = do
+  -- calculate average
+  accIO
 recAnalyser (file : files) accIO = recAnalyser files newAcc
   where
     newAcc = do
-        acc <- accIO
-        (lp, i2h_new, h2o_new, inp_layout, hid_layout, out_layout) <- lpIO
+      acc <- accIO
+      (lp, i2h_new, h2o_new, inp_layout, hid_layout, out_layout) <- lpIO
 
-        let accMap = Map.fromList acc
+      let accMap = Map.fromList acc
 
-        case Map.lookup lp accMap of
-            Nothing -> return . Map.toList $ Map.insert lp (1, i2h_new, h2o_new, inp_layout, hid_layout, out_layout) accMap
-            Just (val, i2h_old, h2o_old, _, _, _) -> return . Map.toList $ Map.insert lp (val + 1, addWeights i2h_new i2h_old, addWeights h2o_new h2o_old, inp_layout, hid_layout, out_layout) accMap
+      case Map.lookup lp accMap of
+        Nothing -> do
+          let
+            i2hFullInfo = map (map weightToFullWeightInfo) i2h_new
+            h2oFullInfo = map (map weightToFullWeightInfo) h2o_new
+
+          return . Map.toList $ Map.insert lp (LPData 1 i2hFullInfo h2oFullInfo inp_layout hid_layout out_layout) accMap
+        Just (LPData val i2h_old h2o_old _ _ _) -> do
+          let
+            i2hFullInfo = map (map weightToFullWeightInfo) i2h_new
+            h2oFullInfo = map (map weightToFullWeightInfo) h2o_new
+
+            addAllWeights :: [[WeightFullInfo]] -> [[WeightFullInfo]] -> [[WeightFullInfo]]
+            addAllWeights = summed
+              where
+                summed xs ys = map (\(x, y) -> zipWith combineWeights x y) (zip xs ys)
+
+          return . Map.toList $ Map.insert lp (LPData (val + 1) (addAllWeights i2hFullInfo i2h_old) (addAllWeights h2oFullInfo h2o_old) inp_layout hid_layout out_layout) accMap
 
     lpIO = do
-        json <- decodeFileStrict ("results/" ++ file) :: IO (Maybe JsonToAnalyse)
-        case json of
-            Nothing -> undefined
-            -- Nothing -> error "Could not process file " ++ file
-            Just xs -> do
-                let lp_to_save = LPjsons.lp $ lp_after xs
-                    i2h_to_save = i2h_connections $ nn_after xs
-                    h2o_to_save = h2o_connections $ nn_after xs
-                    inp_layout = NNpy.inpLayer . architecture $ nn_after xs
-                    hid_layout = NNpy.hidLayer . architecture $ nn_after xs
-                    out_layout = NNpy.outLayer . architecture $ nn_after xs
+      json <- decodeFileStrict ("results/" ++ file) :: IO (Maybe JsonToAnalyse)
+      case json of
+        -- Nothing -> error "Could not process file " ++ file
+        Nothing -> undefined
+        Just xs -> do
+          let 
+            lp_to_save = LPjsons.lp $ lp_after xs
+            i2h_to_save = i2h_connections $ nn_after xs
+            h2o_to_save = h2o_connections $ nn_after xs
+            inp_layout = NNpy.inpLayer . architecture $ nn_after xs
+            hid_layout = NNpy.hidLayer . architecture $ nn_after xs
+            out_layout = NNpy.outLayer . architecture $ nn_after xs
 
-                return (lp_to_save, i2h_to_save, h2o_to_save, inp_layout, hid_layout, out_layout)
+          return (lp_to_save, i2h_to_save, h2o_to_save, inp_layout, hid_layout, out_layout)
 
-addWeights :: [[Float]] -> [[Float]] -> [[Float]]
-addWeights xs ys = map (\(x, y) -> zipWith (+) x y) (zip xs ys)
 
-writeResults :: (LPjson, (Int, [[Float]], [[Float]], [Neuron], [Neuron], [Neuron])) -> String
-writeResults (lp, (n, i2h, h2o, inp_ns, hid_ns, out_ns)) =
-    "Number of lps: " ++ show n ++ "\n" ++ show lp ++ "\n" ++ show (map (map avg) i2h) ++ "\n" ++ show (map (map avg) h2o) ++ "\n" ++ show (map NN.label inp_ns) ++ "\n" ++ show (map NN.label hid_ns) ++ "\n" ++ show (map NN.label out_ns) ++ "\n"
-  where
-    avg x = x / (fromIntegral n :: Float)
+writeResults :: (LPjson, LPData) -> String
+writeResults (lp, LPData n i2h h2o inp_ns hid_ns out_ns) =
+    intercalate "\n"
+      [ "Number of lps: " <> show n
+      , "Logic program: " <> show lp
+      , "Weights from input to hidden:"
+      , printFullInfoWeights i2h
+      , "Weights from hidden to output:"
+      , printFullInfoWeights h2o
+      , "Input atoms sequence: " <> show (map NN.label inp_ns)
+      , "Hidden atoms sequence: " <> show (map NN.label hid_ns)
+      , "Output atoms sequence: " <> show (map NN.label out_ns) <> "\n"
+      ]
+    -- "Number of lps: " ++ show n ++ "\n" ++ show lp ++ "\n" ++ show (map (map avg) i2h) ++ "\n" ++ show (map (map avg) h2o) ++ "\n" ++ show (map NN.label inp_ns) ++ "\n" ++ show (map NN.label hid_ns) ++ "\n" ++ show (map NN.label out_ns) ++ "\n"
+  -- where
+  --   avg x = x / (fromIntegral n :: Float)
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
