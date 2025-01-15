@@ -21,6 +21,7 @@ module JsonAnalysis (
 
 import Data.Aeson
 import Data.List
+import Data.ByteString.Lazy.UTF8 as BS
 import qualified Data.Map as Map
 import GHC.Generics
 import System.Directory
@@ -56,7 +57,7 @@ instance ToJSON JsonToAnalyse where
 
 analyseJsons :: IO ()
 analyseJsons = do
-    let checkedLPsFile = "logic_programs.txt"
+    let checkedLPsFile = "logic_programs.json"
     writeFile checkedLPsFile ""
     putStrLn $ "Created file " ++ checkedLPsFile ++ " with logic programs"
     putStrLn $ "Writing logic programs to " ++ checkedLPsFile
@@ -75,17 +76,26 @@ data WeightFullInfo = WeightFullInfo
   , sumWeight :: Float
   , avgWeight :: Float
   , numWeight :: Int
-  } deriving (Show, Read)
+  } deriving (Show, Read, Generic)
+
+instance FromJSON WeightFullInfo
+instance ToJSON WeightFullInfo where
+    toEncoding = genericToEncoding defaultOptions
 
 
 data LPData = LPData
-  { lpQuantity :: Int
-  , i2hToSave :: [[WeightFullInfo]]
-  , h2oToSave :: [[WeightFullInfo]]
+  { lp :: LPjson
+  , lpQuantity :: Int
+  , i2h :: [[WeightFullInfo]]
+  , h2o :: [[WeightFullInfo]]
   , inpLayout :: [Neuron]
   , hidLayout :: [Neuron]
   , outLayout :: [Neuron]
-  }
+  } deriving (Show, Read, Generic)
+
+instance FromJSON LPData
+instance ToJSON LPData where
+    toEncoding = genericToEncoding defaultOptions
 
 
 combineWeights :: WeightFullInfo -> WeightFullInfo -> WeightFullInfo
@@ -130,8 +140,8 @@ recAnalyser (file : files) accIO = recAnalyser files newAcc
             i2hFullInfo = map (map weightToFullWeightInfo) i2h_new
             h2oFullInfo = map (map weightToFullWeightInfo) h2o_new
 
-          return . Map.toList $ Map.insert lp (LPData 1 i2hFullInfo h2oFullInfo inp_layout hid_layout out_layout) accMap
-        Just (LPData val i2h_old h2o_old _ _ _) -> do
+          return . Map.toList $ Map.insert lp (LPData lp 1 i2hFullInfo h2oFullInfo inp_layout hid_layout out_layout) accMap
+        Just (LPData _ val i2h_old h2o_old _ _ _) -> do
           let
             i2hFullInfo = map (map weightToFullWeightInfo) i2h_new
             h2oFullInfo = map (map weightToFullWeightInfo) h2o_new
@@ -141,7 +151,7 @@ recAnalyser (file : files) accIO = recAnalyser files newAcc
               where
                 summed xs ys = map (\(x, y) -> zipWith combineWeights x y) (zip xs ys)
 
-          return . Map.toList $ Map.insert lp (LPData (val + 1) (addAllWeights i2hFullInfo i2h_old) (addAllWeights h2oFullInfo h2o_old) inp_layout hid_layout out_layout) accMap
+          return . Map.toList $ Map.insert lp (LPData lp (val + 1) (addAllWeights i2hFullInfo i2h_old) (addAllWeights h2oFullInfo h2o_old) inp_layout hid_layout out_layout) accMap
 
     lpIO = do
       json <- decodeFileStrict ("results/" ++ file) :: IO (Maybe JsonToAnalyse)
@@ -161,200 +171,4 @@ recAnalyser (file : files) accIO = recAnalyser files newAcc
 
 
 writeResults :: (LPjson, LPData) -> String
-writeResults (lp, LPData n i2h h2o inp_ns hid_ns out_ns) =
-    intercalate "\n"
-      [ "Number of lps: " <> show n
-      , "Logic program: " <> show lp
-      , "Weights from input to hidden:"
-      , printFullInfoWeights i2h
-      , "Weights from hidden to output:"
-      , printFullInfoWeights h2o
-      , "Input atoms sequence: " <> show (map NN.label inp_ns)
-      , "Hidden atoms sequence: " <> show (map NN.label hid_ns)
-      , "Output atoms sequence: " <> show (map NN.label out_ns) <> "\n"
-      ]
-    -- "Number of lps: " ++ show n ++ "\n" ++ show lp ++ "\n" ++ show (map (map avg) i2h) ++ "\n" ++ show (map (map avg) h2o) ++ "\n" ++ show (map NN.label inp_ns) ++ "\n" ++ show (map NN.label hid_ns) ++ "\n" ++ show (map NN.label out_ns) ++ "\n"
-  -- where
-  --   avg x = x / (fromIntegral n :: Float)
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
-{-
-exampleJson = JsonToAnalyse
-    { lp_before        = exampleLP
-    --, lp_before_params = exampleLPparams
-    , nn_recipe        = exampleNNrecipe
-    --, nn_before_params = exampleNNparams
-    , nn_before        = exampleNNpy
-    , nn_after         = exampleNNpy
-    , errors           = []
-    , io_pairs         = []
-    , lp_after         = exampleLPafter
-    --, lp_after_params  = exampleLPparams
-    }
-
-exampleLP = LPtoNN
-    { JH.lp = makeLPjson
-        [ Fact { clHead = A { LP.idx = 1, LP.label = ""} }
-        , Cl
-            { clHead   = A { LP.idx = 2, LP.label = "" }
-            , clPAtoms = [ A { LP.idx = 1, LP.label = "" } ]
-            , clNAtoms = [ A { LP.idx = 3, LP.label = "" } ]
-            }
-        ]
-    , abductive_goal = exampleAbdGoal
-    --, JH.factors = exampleFactors
-    }
-
-exampleAbdGoal = Cl
-    { clHead = A { LP.idx = 1, LP.label = "" } , clPAtoms = [] , clNAtoms = [] } exampleLPparams = LPparams
-    { LPjsons.clauses = ClausesData
-        { amount        = 5
-        , onlyPos       = 5
-        , onlyNeg       = 0
-        , mix           = 0
-        , headWithH     = 0
-        , LPjsons.atoms = AtomsData
-            { LPjsons.sum = 0
-            , pos         = 5
-            , neg         = 0
-            , withH       = 0
-            , posWithH    = 0
-            , negWithH    = 0
-            }
-        , difAtoms = AtomsData
-            { LPjsons.sum = 3
-            , pos         = 3
-            , neg         = 0
-            , withH       = 0
-            , posWithH    = 0
-            , negWithH    = 0
-            }
-        , atomsInHeadsNotBodies =
-            [ A {LP.idx = 1, LP.label = ""}
-            , A {LP.idx = 1, LP.label = ""}
-            , A {LP.idx = 4, LP.label = ""}
-            ]
-        , atomsInBodiesNotInHeads =
-            [ A {LP.idx = 5, LP.label = ""}
-            , A {LP.idx = 5, LP.label = ""}
-            ]
-        , numOfPosAtomsInEachClause             = [1, 1, 1, 1, 1]
-        , numOfNegAtomsInEachClause             = [0, 0, 0, 0, 0]
-        , numOfClausesWhoseHeadAppearsInTheBody = 0
-        , numOfClausesWhoseHeadAppearsInABody   = 2
-        }
-    , LPjsons.facts       = 0
-    , LPjsons.assumptions = 0
-    }
-
-exampleFactors = Factors
-    { JH.beta = 1.0
-    , ahln    = 1
-    , r       = 0.005
-    , JH.bias = 0.0
-    , w       = 0.1
-    , JH.amin = 0.1
-    }
-
-exampleNNrecipe = NNwithFactors
-    { nn        = exampleNN
-    , nnFactors = exampleFactors
-    }
-
-exampleNN = NN
-    { NN.inpLayer            = []
-    , NN.hidLayer            = []
-    , NN.outLayer            = []
-    , NN.recLayer            = []
-    , NN.inpToHidConnections = []
-    , NN.hidToOutConnections = []
-    , NN.recConnections      = []
-    }
-
-exampleNNparams = NNparams
-    { NNjsons.atoms = NNatoms
-        { NNpy.sum = 22
-        , NNpy.inp = 6
-        , NNpy.hid = 11
-        , NNpy.out = 5
-        , NNpy.rec = 0
-        }
-    , connections = NNconnections
-        { NNjsons.inp2Hid = 26
-        , NNjsons.hid2Out = 14
-        , NNjsons.rec     = 5
-        }
-    , bigWeights = NNbigWeights
-        { NNpy1.inp2Hid = 6
-        , NNpy1.hid2Out = 5
-        , NNpy1.rec     = 5
-        }
-    , NNjsons.factors = exampleFactors
-    }
-
-exampleNNpy = NNpython
-    { architecture    = NNarchitecture
-        { NNpy.inpLayer            = []
-        , NNpy.hidLayer            = []
-        , NNpy.outLayer            = []
-        , NNpy.recLayer            = []
-        , NNpy.inpToHidConnections = []
-        , NNpy.hidToOutConnections = []
-        , NNpy.recConnections      = []
-        }
-    , i2h_connections = []
-    , h2o_connections = []
-    , o2i_connections = []
-    , NNpy.factors    = exampleFactors
-    , comments        = []
-    }
-
-exampleLPafter = LPafter
-    { LPjsons.lp = makeLPjson
-        [ Fact { clHead = A { LP.idx = 1, LP.label = ""} }
-        , Cl
-            { clHead   = A { LP.idx = 2, LP.label = "" }
-            , clPAtoms = [ A { LP.idx = 1, LP.label = "" } ]
-            , clNAtoms = [ A { LP.idx = 3, LP.label = "" } ]
-            }
-        ]
-    }
-
-examplePrinting :: IO ()
-examplePrinting = do
-    encodeFile "test.json" exampleJson
-
-makeLPjson :: LP -> LPjson
-makeLPjson xs = LPjson
-    { JH.facts       = filter isFact xs
-    , JH.assumptions = filter isAssumption xs
-    , JH.clauses     = filter isClause xs
-    }
-    where
-        isFact x = case x of
-            Fact _ -> True
-            _      -> False
-        isAssumption x = case x of
-            Assumption _ -> True
-            _            -> False
-        isClause x = case x of
-            Cl {} -> True
-            _     -> False
-
-jsonAnalyser :: FilePath -> FilePath -> IO ()
-jsonAnalyser pathToAnalyse pathToCheck = do
-    doneLPs <- readFile pathToCheck
-    content <- (decodeFileStrict pathToAnalyse ::  IO (Maybe JsonToAnalyse))
-    case content of
-        Nothing -> putStrLn "Cannot decode json"
-        Just js  -> do
-            putStrLn "Json decoded"
-            if show (lp_after js) `isInfixOf` doneLPs then do
-                putStrLn "LP already there"
-                appendFile pathToCheck ""
-            else
-                appendFile pathToCheck (show $ lp_after js)
-
--}
+writeResults (_, lpData) = BS.toString $ encode lpData
