@@ -57,7 +57,7 @@ instance ToJSON JsonToAnalyse where
 
 analyseJsons :: IO ()
 analyseJsons = do
-  let checkedLPsFile = "logic_programs.json"
+  let checkedLPsFile = "logic_programs.jsonl"
   writeFile checkedLPsFile ""
   putStrLn $ "Created file " ++ checkedLPsFile ++ " with logic programs"
   putStrLn $ "Writing logic programs to " ++ checkedLPsFile
